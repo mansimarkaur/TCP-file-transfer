@@ -58,67 +58,50 @@ class TCPClient extends JFrame implements ActionListener{
 			try{
 				name = txt.getText();
 				pw.println(name);
-				name = "c:/FTP CLIENT DIRECTORY/"+name;
-				FileInputStream fileIn = new FileInputStream(name);
-				byte[] data = new byte[size];
+				//System.out.println("Upload begins");
+				//name = "c:/FTP CLIENT DIRECTORY/"+name;
+				//FileInputStream fileIn = new FileInputStream(name);
+				/*byte[] data = new byte[size];
 				int bytes = 0;
 				while((bytes = fileIn.read(data)) != -1){
-					for(int i = 0; i<bytes; i++){
-						//System.out.println(i);
-						//System.out.println(data[i]);
-					}
 					outToServer.write(data,0,bytes);
 				}
 				fileIn.close();
+				System.out.println("Completed");*/
+
+				FileInputStream file = null;
+		        BufferedInputStream bis = null;
+		        boolean fileExists = true;
+		        name = "C:/FTP CLIENT DIRECTORY/"+name;
+		        //System.out.println(filename);
+		        try{
+		          file = new FileInputStream(name);
+		          bis = new BufferedInputStream(file);
+		        }
+		        catch(FileNotFoundException excep){
+		          fileExists = false;
+		          System.out.println("FileNotFoundException:"+excep.getMessage());
+		        }
+		        if(fileExists){
+		          System.out.println("Upload begins");
+		          sendBytes(bis,outToServer);
+		          System.out.println("Completed");
+		          bis.close();
+		          file.close();
+		          outToServer.close();
+		        }
 			}
 			catch(Exception exc){
 				System.out.println("Exception: "+exc.getMessage());
 			}
 		}
 		if(event.getSource() == down){
-			/*try{
-				
-			    //InputStream is = clientSocket.getInputStream();
-			    File directory = new File(dirName);
-				if(!directory.exists()){
-					directory.mkdir();
-				}
-			    name = txt.getText();
-			    file = "*"+name+"*";
-			    pw.println(file);
-			    System.out.println(name);
-			    int bytesRead = 0;
-			    int current = 0;
-			    byte [] data  = new byte [size];
-			    File f = new File(directory,name);
-			    FileOutputStream fileOut = new FileOutputStream(f);
-		      	BufferedOutputStream bufferOut = new BufferedOutputStream(fileOut);
-			    bytesRead = inFromServer.read(data,0,data.length);
-			    System.out.println(bytesRead);			    
-			    current = bytesRead;
-			    int i = 0;
-			    do {
-			        bytesRead = inFromServer.read(data, current, (data.length-current));
-			        //System.out.println(bytesRead);
-			        //System.out.println(i++);
-			        if(bytesRead >= 0) current += bytesRead;
-			    } while(bytesRead > -1);
-			    System.out.println(i++);
-			    bufferOut.write(data, 0 , current);
-			    System.out.println(i++);
-			    bufferOut.flush();
-			    System.out.println("File " + name + " downloaded (" + current + " bytes read)");
-			}
-			catch(Exception exc){
-				System.out.println("Exception: "+exc.getMessage());
-			}*/
-      
 			try{
 				File directory = new File(dirName);
 				if(!directory.exists()){
 					directory.mkdir();
 				}
-				int j = 0;
+				//int j = 0;
 				boolean complete = true;
 				byte [] data  = new byte [size];
 				name = txt.getText();
@@ -127,21 +110,16 @@ class TCPClient extends JFrame implements ActionListener{
 				File f = new File(directory,name);
 				FileOutputStream fileOut = new FileOutputStream(f);
 				DataOutputStream dataOut = new DataOutputStream(fileOut);
-				//empy file 
-				// if((c = inFromServer.read()) == -1){
-				// 	System.out.println("File empty");
-				// 	complete = false;
-				// }
+				//empty file case
 				while(complete){
 					c = inFromServer.read(data,0,data.length);
-					//c = inFromServer.read();
 					if(c == -1){
 						complete =  false;
 						System.out.println("Completed");
 					}
 
 					else{
-						dataOut.write(data,0,c+1);
+						dataOut.write(data,0,c);
 			    		dataOut.flush();
 					}
 				}
@@ -152,6 +130,15 @@ class TCPClient extends JFrame implements ActionListener{
 			}
 		}
 	}
+
+	private static void sendBytes(BufferedInputStream in, OutputStream out)throws Exception{
+    int size = 9022386;
+    byte[] data = new byte[size];
+    int bytes = 0;
+    int c = in.read(data,0,data.length);
+    out.write(data,0,c);
+    out.flush();
+  }
 	
 	//ClientSocket.close();
 	public static void main(String args[]){

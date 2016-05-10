@@ -19,6 +19,7 @@ public class TCPServer{
 
 class ThreadedServer extends Thread{
   int n;
+  int m;
   String name, f, ch, fileData;
   String filename;
   Socket connectionSocket;
@@ -31,6 +32,7 @@ class ThreadedServer extends Thread{
   public void run(){
     try{
       BufferedReader in = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+      InputStream inFromClient = connectionSocket.getInputStream();
       PrintWriter out = new PrintWriter(connectionSocket.getOutputStream());
       OutputStream output = connectionSocket.getOutputStream();
       name = in.readLine();
@@ -71,21 +73,22 @@ class ThreadedServer extends Thread{
             System.out.println("Dir made");
             directory.mkdir();
           }
+          int size = 9022386;
+          byte [] data  = new byte [size];
           File fc = new File(directory, name);
           FileOutputStream fileOut = new FileOutputStream(fc);
           DataOutputStream dataOut = new DataOutputStream(fileOut);
           while(complete){
-            fileData = in.readLine();
-            if(fileData == null){
-              complete = false;
+            m = inFromClient.read(data,0,data.length);
+            if(m == -1){
+              complete =  false;
+              System.out.println("Completed");
             }
             else{
-              System.out.println(fileData);
-              dataOut.writeChars(fileData);
+              dataOut.write(data,0,m);
+              dataOut.flush();
             }
-            System.out.println(complete);
           }
-          System.out.println(complete);
           fileOut.close();
         }
         catch(Exception exc){
