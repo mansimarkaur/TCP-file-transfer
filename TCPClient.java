@@ -17,15 +17,23 @@ class TCPClient extends JFrame implements ActionListener {
 	OutputStream outToServer;
 	BufferedInputStream bis;
 	PrintWriter pw;
-	String name, file;
+	String name, file, path;
+	String hostAddr;
+	int portNumber;
 	int c;
 	int size = 9022386;
 
-	public TCPClient(String dir) {
+	public TCPClient(String dir, String host, int port) {
 		super("TCP CLIENT");
 
 		// set dirName to the one that's entered by the user
 		dirName = dir;
+
+		// set hostAddr to the one that's passed by the user
+		hostAddr = host;
+
+		// set portNumber to the one that's passed by the user
+		portNumber = port;
 
 		panel = new JPanel(null);
 
@@ -56,7 +64,7 @@ class TCPClient extends JFrame implements ActionListener {
 		getContentPane().add(panel);
 
 		try {
-			clientSocket = new Socket("localhost", 3333);
+			clientSocket = new Socket(hostAddr, portNumber);
 			inFromServer = clientSocket.getInputStream();
 			pw = new PrintWriter(clientSocket.getOutputStream(), true);
 			outToServer = clientSocket.getOutputStream();
@@ -69,14 +77,15 @@ class TCPClient extends JFrame implements ActionListener {
 		if (event.getSource() == up) {
 			try {
 				name = txt.getText();
-				pw.println(name);
+
 				FileInputStream file = null;
 				BufferedInputStream bis = null;
+
 				boolean fileExists = true;
-				name = dirName + name;
+				path = dirName + name;
 
 				try {
-					file = new FileInputStream(name);
+					file = new FileInputStream(path);
 					bis = new BufferedInputStream(file);
 				} catch (FileNotFoundException excep) {
 					fileExists = false;
@@ -84,12 +93,19 @@ class TCPClient extends JFrame implements ActionListener {
 				}
 
 				if (fileExists) {
-					msg = new JLabel("Upload begins");
-					msg.setBounds(300, 350, 400, 50);
-					panel.add(msg);
+					// send file name to server
+					pw.println(name);
+
+					// msg = new JLabel("Upload begins");
+					// msg.setBounds(300, 350, 400, 50);
+					// panel.add(msg);
 					System.out.println("Upload begins");
+
+					// send file data to server
 					sendBytes(bis, outToServer);
 					System.out.println("Completed");
+
+					// close all file buffers
 					bis.close();
 					file.close();
 					outToServer.close();
@@ -143,10 +159,23 @@ class TCPClient extends JFrame implements ActionListener {
 	}
 
 	public static void main(String args[]) {
-		// if at least one argument is passed, consider the first one as directory name
-		// otherwise, show error
-		if(args.length != 0){
-			TCPClient tcp = new TCPClient(args[0]);
+		// if at least three argument are passed, consider the first one as directory path,
+		// the second one as host address and the third one as port number
+		// If host address is not present, default it to "localhost"
+		// If port number is not present, default it to 3333
+		// If directory path is not present, show error
+		if(args.length >= 3){
+			TCPClient tcp = new TCPClient(args[0], args[1], Integer.parseInt(args[2]));
+			tcp.setSize(1000, 900);
+			tcp.setVisible(true);
+		}
+		else if(args.length == 2){
+			TCPClient tcp = new TCPClient(args[0], args[1], 3333);
+			tcp.setSize(1000, 900);
+			tcp.setVisible(true);
+		}
+		else if(args.length == 1){
+			TCPClient tcp = new TCPClient(args[0], "localhost", 3333);
 			tcp.setSize(1000, 900);
 			tcp.setVisible(true);
 		}
