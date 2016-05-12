@@ -10,7 +10,7 @@ class TCPClient extends JFrame implements ActionListener {
 	JLabel title, subT, msg;
 	Font font;
 	JTextField txt;
-	JButton up, down;
+	JButton up, down, button;
 	String dirName;
 	Socket clientSocket;
 	InputStream inFromServer;
@@ -35,7 +35,15 @@ class TCPClient extends JFrame implements ActionListener {
 		// set portNumber to the one that's passed by the user
 		portNumber = port;
 
+		setLayout(new BorderLayout());
 		panel = new JPanel(null);
+		panel.setLayout(new BoxLayout());
+		// add(panel, BorderLayout.CENTER);
+		// button = new JButton("Click here");
+		// add(button, BorderLayout.SOUTH);
+		// button.addActionListener(this);
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		font = new Font("Roboto", Font.BOLD, 60);
 		title = new JLabel("TCP CLIENT");
@@ -74,7 +82,13 @@ class TCPClient extends JFrame implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		if (event.getSource() == up) {
+
+		if(event.getSource() == button){
+			panel.add(new JButton("New button"));
+			panel.revalidate();
+			validate();
+		}
+		else if (event.getSource() == up) {
 			try {
 				name = txt.getText();
 
@@ -96,9 +110,11 @@ class TCPClient extends JFrame implements ActionListener {
 					// send file name to server
 					pw.println(name);
 
-					// msg = new JLabel("Upload begins");
-					// msg.setBounds(300, 350, 400, 50);
-					// panel.add(msg);
+					msg = new JLabel("Upload begins");
+					msg.setBounds(300, 350, 400, 50);
+					panel.add(msg);
+					panel.revalidate();
+					validate();
 					System.out.println("Upload begins");
 
 					// send file data to server
