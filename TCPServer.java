@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class TCPServer {
 	public static void main(String args[]) throws Exception {
@@ -57,8 +58,20 @@ class ThreadedServer extends Thread {
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 			InputStream inFromClient = connectionSocket.getInputStream();
-			PrintWriter out = new PrintWriter(connectionSocket.getOutputStream());
+			PrintWriter outPw = new PrintWriter(connectionSocket.getOutputStream());
 			OutputStream output = connectionSocket.getOutputStream();
+
+			ObjectOutputStream oout = new ObjectOutputStream(output);
+			oout.writeObject("Welcome to the server, Babusha!");
+
+			File ff = new File(dirName);
+			ArrayList<String> names = new ArrayList<String>(Arrays.asList(ff.list()));
+			int len = names.size();
+			oout.writeObject(String.valueOf(names.size()));
+
+			for(String name: names) {
+				oout.writeObject(name);
+			}
 
 			name = in.readLine();
 			//System.out.println(name);
@@ -81,7 +94,7 @@ class ThreadedServer extends Thread {
 					System.out.println("FileNotFoundException:" + excep.getMessage());
 				}
 				if (fileExists) {
-					ObjectOutputStream oout = new ObjectOutputStream(output);
+					oout = new ObjectOutputStream(output);
 					oout.writeObject("Success");
 
 					System.out.println("Download begins");
@@ -89,13 +102,15 @@ class ThreadedServer extends Thread {
 					System.out.println("Completed");
 					bis.close();
 					file.close();
+					oout.close();
 					output.close();
 				}
 				else {
-					ObjectOutputStream oout = new ObjectOutputStream(output);
+					oout = new ObjectOutputStream(output);
 					oout.writeObject("FileNotFound");
 					bis.close();
 					file.close();
+					oout.close();
 					output.close();
 				}
 			} else {
@@ -129,7 +144,6 @@ class ThreadedServer extends Thread {
 					System.out.println(exc.getMessage());
 				}
 			}
-			connectionSocket.close();
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}

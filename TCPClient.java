@@ -22,6 +22,7 @@ class TCPClient extends JFrame implements ActionListener {
 	int portNumber;
 	int c;
 	int size = 9022386;
+	JList<String> filelist;
 
 	public TCPClient(String dir, String host, int port) {
 		super("TCP CLIENT");
@@ -46,39 +47,67 @@ class TCPClient extends JFrame implements ActionListener {
 		panel.add(title);
 
 		subT = new JLabel("Enter File Name :");
-		subT.setBounds(100, 150, 200, 50);
+		subT.setBounds(100, 450, 200, 50);
 		panel.add(subT);
 
 		txt = new JTextField();
-		txt.setBounds(400, 150, 500, 50);
+		txt.setBounds(400, 450, 500, 50);
 		panel.add(txt);
 
 		up = new JButton("Upload");
-		up.setBounds(250, 250, 200, 50);
+		up.setBounds(250, 550, 200, 50);
 		panel.add(up);
 
 		down = new JButton("Download");
-		down.setBounds(550, 250, 200, 50);
+		down.setBounds(550, 550, 200, 50);
 		panel.add(down);
 
 		error = new JLabel("");
-		error.setBounds(200,350,600,50);
+		error.setBounds(200, 650, 600, 50);
 		panel.add(error);
 
 		up.addActionListener(this);
 		down.addActionListener(this);
-		getContentPane().add(panel);
 
 		try {
 			clientSocket = new Socket(hostAddr, portNumber);
 			inFromServer = clientSocket.getInputStream();
 			pw = new PrintWriter(clientSocket.getOutputStream(), true);
 			outToServer = clientSocket.getOutputStream();
+			ObjectInputStream oin = new ObjectInputStream(inFromServer);
+			String s = (String) oin.readObject();
+			System.out.println(s);
+
+			int len = Integer.parseInt((String) oin.readObject());
+			System.out.println(len);
+
+			String[] names = new String[len];
+
+			for(int i = 0; i < len; i++) {
+				String filename = (String) oin.readObject();
+				System.out.println(filename);
+				names[i] = filename;
+			}
+
+			// String[] names = {"sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar"};
+			String[] col = {"Name"};
+			Object[][] data = {
+				{"Sahil"},
+				{"Mansimar"}
+			};
+
+			JList table = new JList<>(names);
+			JScrollPane scroll = new JScrollPane(table);
+			scroll.setBounds(400, 150, 200, 200);
+			panel.add(scroll);
+
 		} catch (Exception exc) {
 			System.out.println("Exception: " + exc.getMessage());
-			error.setText("FileNotFoundException:" + exc.getMessage());
+			error.setText("Exception:" + exc.getMessage());
 			panel.revalidate();
 		}
+
+		getContentPane().add(panel);
 	}
 
 	public void actionPerformed(ActionEvent event) {
@@ -106,9 +135,6 @@ class TCPClient extends JFrame implements ActionListener {
 					// send file name to server
 					pw.println(name);
 
-					// msg = new JLabel("Upload begins");
-					// msg.setBounds(300, 350, 400, 50);
-					// panel.add(msg);
 					System.out.println("Upload begins");
 					error.setText("Upload begins");
 					panel.revalidate();
@@ -170,7 +196,6 @@ class TCPClient extends JFrame implements ActionListener {
 				else {
 					System.out.println("Requested file not found on the server.");
 					error.setText("Requested file not found on the server.");
-					error.setBounds(200,350,600,50);
 					panel.revalidate();
 				}
 			} catch (Exception exc) {
