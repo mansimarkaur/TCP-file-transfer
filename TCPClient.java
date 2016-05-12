@@ -35,6 +35,8 @@ class TCPClient extends JFrame implements ActionListener {
 		// set portNumber to the one that's passed by the user
 		portNumber = port;
 
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		panel = new JPanel(null);
 
 		font = new Font("Roboto", Font.BOLD, 60);
@@ -127,22 +129,30 @@ class TCPClient extends JFrame implements ActionListener {
 				file = new String("*" + name + "*");
 				pw.println(file); //lets the server know which file is to be downloaded
 
-				File f = new File(directory, name);
-				FileOutputStream fileOut = new FileOutputStream(f);
-				DataOutputStream dataOut = new DataOutputStream(fileOut);
+				ObjectInputStream oin = new ObjectInputStream(inFromServer);
+				String s = (String) oin.readObject();
 
-				//empty file case
-				while (complete) {
-					c = inFromServer.read(data, 0, data.length);
-					if (c == -1) {
-						complete = false;
-						System.out.println("Completed");
-					} else {
-						dataOut.write(data, 0, c);
-						dataOut.flush();
+				if(s.equals("Success")) {
+					File f = new File(directory, name);
+					FileOutputStream fileOut = new FileOutputStream(f);
+					DataOutputStream dataOut = new DataOutputStream(fileOut);
+
+					//empty file case
+					while (complete) {
+						c = inFromServer.read(data, 0, data.length);
+						if (c == -1) {
+							complete = false;
+							System.out.println("Completed");
+						} else {
+							dataOut.write(data, 0, c);
+							dataOut.flush();
+						}
 					}
+					fileOut.close();
 				}
-				fileOut.close();
+				else {
+					System.out.println("Requested file not found on the server.");
+				}
 			} catch (Exception exc) {
 				System.out.println("Exception: " + exc.getMessage());
 			}
