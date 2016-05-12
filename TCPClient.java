@@ -7,7 +7,7 @@ import javax.swing.*;
 
 class TCPClient extends JFrame implements ActionListener {
 	JPanel panel;
-	JLabel title, subT, msg;
+	JLabel title, subT, msg, error;
 	Font font;
 	JTextField txt;
 	JButton up, down;
@@ -61,6 +61,10 @@ class TCPClient extends JFrame implements ActionListener {
 		down.setBounds(550, 250, 200, 50);
 		panel.add(down);
 
+		error = new JLabel("");
+		error.setBounds(200,350,600,50);
+		panel.add(error);
+
 		up.addActionListener(this);
 		down.addActionListener(this);
 		getContentPane().add(panel);
@@ -72,6 +76,8 @@ class TCPClient extends JFrame implements ActionListener {
 			outToServer = clientSocket.getOutputStream();
 		} catch (Exception exc) {
 			System.out.println("Exception: " + exc.getMessage());
+			error.setText("FileNotFoundException:" + exc.getMessage());
+			panel.revalidate();
 		}
 	}
 
@@ -92,6 +98,8 @@ class TCPClient extends JFrame implements ActionListener {
 				} catch (FileNotFoundException excep) {
 					fileExists = false;
 					System.out.println("FileNotFoundException:" + excep.getMessage());
+					error.setText("FileNotFoundException:" + excep.getMessage());
+					panel.revalidate();
 				}
 
 				if (fileExists) {
@@ -102,10 +110,14 @@ class TCPClient extends JFrame implements ActionListener {
 					// msg.setBounds(300, 350, 400, 50);
 					// panel.add(msg);
 					System.out.println("Upload begins");
+					error.setText("Upload begins");
+					panel.revalidate();
 
 					// send file data to server
 					sendBytes(bis, outToServer);
 					System.out.println("Completed");
+					error.setText("Completed");
+					panel.revalidate();
 
 					// close all file buffers
 					bis.close();
@@ -114,6 +126,8 @@ class TCPClient extends JFrame implements ActionListener {
 				}
 			} catch (Exception exc) {
 				System.out.println("Exception: " + exc.getMessage());
+				error.setText("Exception:" + exc.getMessage());
+				panel.revalidate();
 			}
 		}
 		else if (event.getSource() == down) {
@@ -143,6 +157,9 @@ class TCPClient extends JFrame implements ActionListener {
 						if (c == -1) {
 							complete = false;
 							System.out.println("Completed");
+							error.setText("Completed");
+							panel.revalidate();
+
 						} else {
 							dataOut.write(data, 0, c);
 							dataOut.flush();
@@ -152,9 +169,14 @@ class TCPClient extends JFrame implements ActionListener {
 				}
 				else {
 					System.out.println("Requested file not found on the server.");
+					error.setText("Requested file not found on the server.");
+					error.setBounds(200,350,600,50);
+					panel.revalidate();
 				}
 			} catch (Exception exc) {
 				System.out.println("Exception: " + exc.getMessage());
+				error.setText("Exception:" + exc.getMessage());
+				panel.revalidate();
 			}
 		}
 	}

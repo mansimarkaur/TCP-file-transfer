@@ -1,0 +1,5 @@
+Improvement:
+
+- display and open directories in server directory.
+- select files and folders and name displayed automatically in Jfield.
+-
