@@ -81,9 +81,19 @@ class ThreadedServer extends Thread {
 					System.out.println("FileNotFoundException:" + excep.getMessage());
 				}
 				if (fileExists) {
+					ObjectOutputStream oout = new ObjectOutputStream(output);
+					oout.writeObject("Success");
+
 					System.out.println("Download begins");
 					sendBytes(bis, output);
 					System.out.println("Completed");
+					bis.close();
+					file.close();
+					output.close();
+				}
+				else {
+					ObjectOutputStream oout = new ObjectOutputStream(output);
+					oout.writeObject("FileNotFound");
 					bis.close();
 					file.close();
 					output.close();
