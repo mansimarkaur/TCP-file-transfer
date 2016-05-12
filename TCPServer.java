@@ -62,7 +62,7 @@ class ThreadedServer extends Thread {
 			OutputStream output = connectionSocket.getOutputStream();
 
 			ObjectOutputStream oout = new ObjectOutputStream(output);
-			oout.writeObject("Welcome to the server, Babusha!");
+			oout.writeObject("Server says Hi!");
 
 			File ff = new File(dirName);
 			ArrayList<String> names = new ArrayList<String>(Arrays.asList(ff.list()));
@@ -74,7 +74,6 @@ class ThreadedServer extends Thread {
 			}
 
 			name = in.readLine();
-			//System.out.println(name);
 			ch = name.substring(0, 1);
 
 			if (ch.equals("*")) {
@@ -89,14 +88,14 @@ class ThreadedServer extends Thread {
 				try {
 					file = new FileInputStream(filename);
 					bis = new BufferedInputStream(file);
-				} catch (FileNotFoundException excep) {
+				} 
+				catch (FileNotFoundException excep) {
 					fileExists = false;
 					System.out.println("FileNotFoundException:" + excep.getMessage());
 				}
 				if (fileExists) {
 					oout = new ObjectOutputStream(output);
 					oout.writeObject("Success");
-
 					System.out.println("Download begins");
 					sendBytes(bis, output);
 					System.out.println("Completed");
@@ -113,7 +112,8 @@ class ThreadedServer extends Thread {
 					oout.close();
 					output.close();
 				}
-			} else {
+			} 
+			else{
 				try {
 					boolean complete = true;
 					System.out.println("Request to upload file " + name + " recieved from " + connectionSocket.getInetAddress().getHostName() + "...");
@@ -144,7 +144,8 @@ class ThreadedServer extends Thread {
 					System.out.println(exc.getMessage());
 				}
 			}
-		} catch (Exception ex) {
+		} 
+		catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
 	}

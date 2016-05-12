@@ -5,10 +5,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-class TCPClient extends JFrame implements ActionListener {
+class TCPClient extends JFrame implements ActionListener, MouseListener {
 	JPanel panel;
-	JLabel title, subT, msg, error;
-	Font font;
+	JLabel title, subT, msg, error, servFiles;
+	Font font,labelfont;
 	JTextField txt;
 	JButton up, down;
 	String dirName;
@@ -46,7 +46,9 @@ class TCPClient extends JFrame implements ActionListener {
 		title.setBounds(300, 50, 400, 50);
 		panel.add(title);
 
+		labelfont = new Font("Roboto",Font.PLAIN,20);
 		subT = new JLabel("Enter File Name :");
+		subT.setFont(labelfont);
 		subT.setBounds(100, 450, 200, 50);
 		panel.add(subT);
 
@@ -63,6 +65,7 @@ class TCPClient extends JFrame implements ActionListener {
 		panel.add(down);
 
 		error = new JLabel("");
+		error.setFont(labelfont);
 		error.setBounds(200, 650, 600, 50);
 		panel.add(error);
 
@@ -88,29 +91,42 @@ class TCPClient extends JFrame implements ActionListener {
 				System.out.println(filename);
 				names[i] = filename;
 			}
-
-			// String[] names = {"sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar","sahil","mansimar"};
-			String[] col = {"Name"};
-			Object[][] data = {
-				{"Sahil"},
-				{"Mansimar"}
-			};
-
-			JList table = new JList<>(names);
-			JScrollPane scroll = new JScrollPane(table);
-			scroll.setBounds(400, 150, 200, 200);
+			servFiles = new JLabel("Files in the Server Directory :");
+			servFiles.setBounds(350, 125, 400, 50);
+			panel.add(servFiles);
+			filelist = new JList<>(names);
+			JScrollPane scroll = new JScrollPane(filelist);
+			scroll.setBounds(300, 200, 400, 200);
 			panel.add(scroll);
+			filelist.addMouseListener(this);
 
-		} catch (Exception exc) {
+		} 
+		catch (Exception exc) {
 			System.out.println("Exception: " + exc.getMessage());
 			error.setText("Exception:" + exc.getMessage());
+			error.setBounds(300,125,600,50);
 			panel.revalidate();
 		}
 
 		getContentPane().add(panel);
 	}
 
+    public void mouseClicked(MouseEvent click) {
+        if (click.getClickCount() == 2) {
+           String selectedItem = (String) filelist.getSelectedValue();
+           txt.setText(selectedItem);
+           panel.revalidate();
+         }
+    }
+
+    public void mousePressed(MouseEvent e){}
+    public void mouseEntered(MouseEvent e){}
+    public void mouseExited(MouseEvent e){}
+    public void mouseReleased(MouseEvent e){}
+
 	public void actionPerformed(ActionEvent event) {
+		txt.setText(filelist.getSelectedValue().toString());
+		panel.revalidate();
 		if (event.getSource() == up) {
 			try {
 				name = txt.getText();
@@ -150,7 +166,8 @@ class TCPClient extends JFrame implements ActionListener {
 					file.close();
 					outToServer.close();
 				}
-			} catch (Exception exc) {
+			} 
+			catch (Exception exc) {
 				System.out.println("Exception: " + exc.getMessage());
 				error.setText("Exception:" + exc.getMessage());
 				panel.revalidate();
@@ -198,7 +215,8 @@ class TCPClient extends JFrame implements ActionListener {
 					error.setText("Requested file not found on the server.");
 					panel.revalidate();
 				}
-			} catch (Exception exc) {
+			} 
+			catch (Exception exc) {
 				System.out.println("Exception: " + exc.getMessage());
 				error.setText("Exception:" + exc.getMessage());
 				panel.revalidate();
