@@ -4,6 +4,7 @@ import java.lang.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.Arrays;
 
 class TCPClient extends JFrame implements ActionListener, MouseListener {
 	JPanel panel;
@@ -95,6 +96,9 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
 				temp_names[i] = filename;
 			}
 
+			// sort the array of strings that's going to get displayed in the scrollpane
+			Arrays.sort(temp_names);
+
 			servFiles = new JLabel("Files in the Server Directory :");
 			servFiles.setBounds(350, 125, 400, 50);
 			panel.add(servFiles);
@@ -131,8 +135,6 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
     public void mouseReleased(MouseEvent e){}
 
 	public void actionPerformed(ActionEvent event) {
-		// txt.setText(filelist.getSelectedValue().toString());
-		// panel.revalidate();
 		if (event.getSource() == up) {
 			try {
 				name = txt.getText();
@@ -179,7 +181,17 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
 						names[len] = name;
 						len++;
 					}
-					filelist.setListData(names);
+
+					String[] temp_names = new String[len];
+					for(int i = 0; i < len; i++){
+						temp_names[i] = names[i];
+					}
+
+					// sort the array of strings that's going to get displayed in the scrollpane
+					Arrays.sort(temp_names);
+
+					// update the contents of the list in scroll pane
+					filelist.setListData(temp_names);
 
 					// close all file buffers
 					bis.close();
