@@ -46,7 +46,7 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
 		title.setBounds(300, 50, 400, 50);
 		panel.add(title);
 
-		labelfont = new Font("Roboto",Font.PLAIN,20);
+		labelfont = new Font("Roboto", Font.PLAIN, 20);
 		subT = new JLabel("Enter File Name :");
 		subT.setFont(labelfont);
 		subT.setBounds(100, 450, 200, 50);
