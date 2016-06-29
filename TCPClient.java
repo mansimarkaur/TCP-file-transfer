@@ -4,6 +4,7 @@ import java.lang.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.Arrays;
 
 class TCPClient extends JFrame implements ActionListener, MouseListener {
 	JPanel panel;
@@ -23,6 +24,8 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
 	int c;
 	int size = 9022386;
 	JList<String> filelist;
+	String[] names = new String[10000];
+	int len; // number of files on the server retrieved
 
 	public TCPClient(String dir, String host, int port) {
 		super("TCP CLIENT");
@@ -81,22 +84,29 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
 			String s = (String) oin.readObject();
 			System.out.println(s);
 
-			int len = Integer.parseInt((String) oin.readObject());
+			len = Integer.parseInt((String) oin.readObject());
 			System.out.println(len);
 
-			String[] names = new String[len];
+			String[] temp_names = new String[len];
 
 			for(int i = 0; i < len; i++) {
 				String filename = (String) oin.readObject();
 				System.out.println(filename);
 				names[i] = filename;
+				temp_names[i] = filename;
 			}
+
+			// sort the array of strings that's going to get displayed in the scrollpane
+			Arrays.sort(temp_names);
+
 			servFiles = new JLabel("Files in the Server Directory :");
 			servFiles.setBounds(350, 125, 400, 50);
 			panel.add(servFiles);
-			filelist = new JList<>(names);
+
+			filelist = new JList<>(temp_names);
 			JScrollPane scroll = new JScrollPane(filelist);
 			scroll.setBounds(300, 200, 400, 200);
+
 			panel.add(scroll);
 			filelist.addMouseListener(this);
 
@@ -125,8 +135,6 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
     public void mouseReleased(MouseEvent e){}
 
 	public void actionPerformed(ActionEvent event) {
-		txt.setText(filelist.getSelectedValue().toString());
-		panel.revalidate();
 		if (event.getSource() == up) {
 			try {
 				name = txt.getText();
@@ -160,6 +168,30 @@ class TCPClient extends JFrame implements ActionListener, MouseListener {
 					System.out.println("Completed");
 					error.setText("Completed");
 					panel.revalidate();
+
+					boolean exists = false;
+					for(int i = 0; i < len; i++){
+						if(names[i].equals(name)){
+							exists = true;
+							break;
+						}
+					}
+
+					if(!exists){
+						names[len] = name;
+						len++;
+					}
+
+					String[] temp_names = new String[len];
+					for(int i = 0; i < len; i++){
+						temp_names[i] = names[i];
+					}
+
+					// sort the array of strings that's going to get displayed in the scrollpane
+					Arrays.sort(temp_names);
+
+					// update the contents of the list in scroll pane
+					filelist.setListData(temp_names);
 
 					// close all file buffers
 					bis.close();
